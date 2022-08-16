@@ -4,8 +4,8 @@ from pathlib import Path
 import glob
 
 from core import config
-from meme_provider_response import MemeProviderResponse
-from models import Post, View, User
+from core.meme_provider_response import MemeProviderResponse
+from core.models import Post, View, User
 
 
 def refresh_database_memes():
@@ -40,7 +40,7 @@ def get_meme_image(user_id):
     random_not_viewed_meme_path = random.choice(not_viewed_post_file_names)
 
     db_post = Post.select().where(Post.file_name == random_not_viewed_meme_path).get()
-    print(db_post.id)
+
     if not os.path.exists(random_not_viewed_meme_path):
         db_post.delete_instance()
         return get_meme_image(user_id)

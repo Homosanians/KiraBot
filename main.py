@@ -1,16 +1,13 @@
 import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButton, ReplyKeyboardMarkup
 
-import config
-import meme_provider
-import models
-import strings
+from core import strings, meme_provider, config, models
 
 bot = telebot.TeleBot(config.BOT_TOKEN)
 
 
 def keyboard():
-    markup = ReplyKeyboardMarkup()
+    markup = ReplyKeyboardMarkup(True, False)
     markup.add(KeyboardButton(strings.KEYBOARD_GET_MEME))
     return markup
 

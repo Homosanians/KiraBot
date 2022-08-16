@@ -3,14 +3,13 @@ import random
 from pathlib import Path
 import glob
 
+from core import config
 from meme_provider_response import MemeProviderResponse
 from models import Post, View, User
 
-DIRECTORY = './memes'
-
 
 def refresh_database_memes():
-    memes_paths = glob.glob(f"{DIRECTORY}/*.png") + glob.glob(f"{DIRECTORY}/*.jpg")
+    memes_paths = glob.glob(f"{config.IMAGES_PATH}/*.png") + glob.glob(f"{config.IMAGES_PATH}/*.jpg")
     for item in memes_paths:
         if not Post.select().where(Post.file_name == item).exists():
             Post.create(file_name=item, likes=0, dislikes=0)
@@ -53,21 +52,21 @@ def get_meme_image(user_id):
         return MemeProviderResponse(error, image, db_post)
 
 
-# Годные мемы перемещаются в папку для тренировки модели, затем все мемы удаляются.
+# Godniye memes moves to dataset train folder
 def handle_outdated_memes(paths):
-    # TODO
     for path in paths:
-        os.remove(path)
+        filename = os.path.basename(path)
+        os.rename(path, os.path.join(config.TRAIN_PATH, filename))
 
 
 def rotate_images_by_date(keep=1000):
-    paths = sorted(Path(DIRECTORY).iterdir(), key=os.path.getmtime)
+    paths = sorted(Path(config.IMAGES_PATH).iterdir(), key=os.path.getmtime)
     paths.reverse()
     handle_outdated_memes(paths[keep:])
 
 
 def init():
-    if not os.path.exists(DIRECTORY):
-        os.makedirs(DIRECTORY)
+    if not os.path.exists(config.IMAGES_PATH):
+        os.makedirs(config.IMAGES_PATH)
     refresh_database_memes()
     rotate_images_by_date()

@@ -76,7 +76,8 @@ def handle_outdated_memes(paths):
             with open(os.path.join(config.TRAIN_PATH, "data.csv"), "a") as file:
                 file.write(f"{filename},{likes},{dislikes},{views}\n")
         else:
-            print(f'WARNING Cannot move file {filename} to train folder because a file with same name already exists there.')
+            print(f'WARNING Cannot move file {filename} to train folder because a file with same name already exists '
+                  f'there.')
 
 
 def rotate_memes(keep=1000, post_lifespan=timedelta(days=3)):

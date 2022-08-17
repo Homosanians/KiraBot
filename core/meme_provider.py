@@ -99,4 +99,5 @@ def init():
         os.makedirs(config.TRAIN_PATH)
     refresh_database_memes()
     # TODO Call rotate every *CONFIG* time
-    rotate_memes()
+    rotate_memes(keep=config.ROTATION_KEEP_FILES_COUNT,
+                 post_lifespan=timedelta(hours=config.ROTATION_POST_LIFESPAN_HOURS))

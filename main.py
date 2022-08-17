@@ -2,7 +2,6 @@ import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButton, ReplyKeyboardMarkup
 
 from core import strings, meme_provider, config, models
-from scrapping import scrapping_service
 
 bot = telebot.TeleBot(config.BOT_TOKEN)
 

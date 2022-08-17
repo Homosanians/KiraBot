@@ -30,7 +30,7 @@ class Assessment(BaseModel):
     positive = BooleanField()
 
 
-def init():
+def initialize():
     db.connect()
     db.create_tables([User, Post, View, Assessment])
     db.close()

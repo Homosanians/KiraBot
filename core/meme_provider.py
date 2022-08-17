@@ -1,3 +1,4 @@
+import logging
 import os
 import random
 from datetime import timedelta, datetime, timezone
@@ -62,6 +63,7 @@ def handle_duplications():
 
 # Godniye memes moves to dataset train folder
 def handle_outdated_memes(paths):
+    logging.debug('Outdated memes found. The purge process has started.')
     for path in paths:
         filename = os.path.basename(path)
         new_train_path = os.path.join(config.TRAIN_PATH, filename)
@@ -76,7 +78,7 @@ def handle_outdated_memes(paths):
             with open(os.path.join(config.TRAIN_PATH, "data.csv"), "a") as file:
                 file.write(f"{filename},{likes},{dislikes},{views}\n")
         else:
-            print(f'WARNING Cannot move file {filename} to train folder because a file with same name already exists '
+            logging.warning(f'Cannot move file {filename} to train folder because a file with same name already exists '
                   f'there.')
 
 
@@ -92,12 +94,9 @@ def rotate_memes(keep=1000, post_lifespan=timedelta(days=3)):
     handle_outdated_memes(overtime_paths)
 
 
-def init():
+def initialize():
     if not os.path.exists(config.IMAGES_PATH):
         os.makedirs(config.IMAGES_PATH)
     if not os.path.exists(config.TRAIN_PATH):
         os.makedirs(config.TRAIN_PATH)
     refresh_database_memes()
-    # TODO Call rotate every *CONFIG* time
-    rotate_memes(keep=config.ROTATION_KEEP_FILES_COUNT,
-                 post_lifespan=timedelta(hours=config.ROTATION_POST_LIFESPAN_HOURS))

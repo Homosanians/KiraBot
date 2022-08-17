@@ -1,21 +1,19 @@
+import logging
 from threading import Thread
-
-from tqdm import tqdm
 
 from scrapping.four_chan_scrapper import FourChanScrapper
 
+scrappers = [FourChanScrapper()]
 
-def _threaded_scrapping():
-    scrappers = [FourChanScrapper()]
 
-    for scrapper in tqdm(scrappers):
-        scrapper.get_images()
-        print(f'Scrapped {scrapper.parsed} photos from {scrapper.name}')
+def __threaded_scrapping(scrapper):
+    logging.debug(f'Scrapper {scrapper.name} started gathering images.')
+    scrapper.get_images()
+    logging.debug(f'Scrapped {scrapper.parsed} photos from {scrapper.name}.')
 
 
 def start_scrapping():
-    print('Started scrapping images. Creating new thread.')
-    thread = Thread(target=_threaded_scrapping)
-    thread.start()
-    thread.join()
-    print("Scrapping complete. Thread is being terminated.")
+    logging.info('Scrappers thread allocation started.')
+    for scrapper in scrappers:
+        thread = Thread(target=__threaded_scrapping, args=[scrapper])
+        thread.start()

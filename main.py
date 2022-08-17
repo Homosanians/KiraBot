@@ -1,7 +1,11 @@
+import asyncio
+import logging
+from threading import Thread
+
 import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButton, ReplyKeyboardMarkup
 
-from core import strings, meme_provider, config, models
+from core import strings, meme_provider, config, models, scheduler
 
 bot = telebot.TeleBot(config.BOT_TOKEN)
 
@@ -81,9 +85,17 @@ def callback_query(call):
     bot.answer_callback_query(call.id)
 
 
-print('Warming up')
-models.init()
-meme_provider.init()
-# TODO scrap every *CONFIG* time
-# scrapping_service.start_scrapping()
-bot.infinity_polling()
+if __name__ == '__main__':
+    logging.info('Warming up.')
+
+    logging.basicConfig(filename='latest.log', encoding='utf-8', level=logging.DEBUG)
+
+    models.initialize()
+    meme_provider.initialize()
+
+    logging.debug('Allocating a thread for telegram\'s API infinite polling.')
+    thread = Thread(target=bot.infinity_polling())
+    thread.start()
+    logging.info('Bot started.')
+
+    asyncio.run(scheduler.run_coroutines())

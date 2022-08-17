@@ -17,6 +17,8 @@ async def __rotation_coroutine():
 
 
 async def __scraping_coroutine():
+    if config.ENABLE_SCRAPPING != 1:
+        return
     while True:
         scrapping_service.start_scrapping()
         await sleep(config.SCRAP_PERIOD_MINUTES)

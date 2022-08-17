@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import sys
 from threading import Thread
 
 import telebot
@@ -85,16 +86,33 @@ def callback_query(call):
     bot.answer_callback_query(call.id)
 
 
-if __name__ == '__main__':
-    logging.info('Warming up.')
+def get_severity_level():
+    levels = {
+        0: logging.DEBUG,
+        1: logging.INFO,
+        2: logging.WARNING,
+        3: logging.ERROR,
+        4: logging.FATAL
+    }
 
-    logging.basicConfig(filename='latest.log', encoding='utf-8', level=logging.DEBUG)
+    try:
+        return levels[int(config.LOGGING_LEVEL)]
+    except KeyError as e:
+        raise ValueError('Undefined unit: {}'.format(e.args[0]))
+
+
+if __name__ == '__main__':
+    logging.basicConfig(filename='latest.log', encoding='utf-8', level=get_severity_level(),
+                        format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
+
+    logging.debug('Warming up.')
 
     models.initialize()
     meme_provider.initialize()
 
     logging.debug('Allocating a thread for telegram\'s API infinite polling.')
-    thread = Thread(target=bot.infinity_polling())
+    thread = Thread(target=bot.infinity_polling)
     thread.start()
     logging.info('Bot started.')
 

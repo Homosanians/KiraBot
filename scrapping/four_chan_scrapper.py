@@ -26,7 +26,6 @@ class FourChanScrapper(BaseScrapper):
         elements = soup.select('a')
 
         for element in elements:
-            print(element)
             if '.jpg' in element['title'] or '.png' in element['title']:
                 image_url = f"https:{element['href']}"
                 img_data = requests.get(image_url).content

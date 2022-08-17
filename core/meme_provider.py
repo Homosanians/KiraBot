@@ -82,7 +82,7 @@ def handle_outdated_memes(paths):
                   f'there.')
 
 
-def rotate_memes(keep=1000, post_lifespan=timedelta(days=3)):
+def rotate_memes(keep=1000, post_lifespan=timedelta(days=5)):
     # Moves last *keep* images to train folder, files csv entry and deletes from the DB.
     overflow_paths = sorted(Path(config.IMAGES_PATH).iterdir(), key=os.path.getmtime)
     overflow_paths.reverse()

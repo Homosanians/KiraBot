@@ -1,14 +1,8 @@
-import glob
-import os
-import uuid
-
 import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButton, ReplyKeyboardMarkup
-from tqdm import tqdm
 
 from core import strings, meme_provider, config, models
-from scrapping.base_scrapper import BaseScrapper
-from scrapping.four_chan_scrapper import FourChanScrapper
+from scrapping import scrapping_service
 
 bot = telebot.TeleBot(config.BOT_TOKEN)
 
@@ -80,14 +74,7 @@ def callback_query(call):
     bot.answer_callback_query(call.id)
 
 
-scrappers = [FourChanScrapper()]
-
-print('Started scrapping images.')
-for scrapper in tqdm(scrappers):
-    for image in scrapper.get_images():
-        pass
-    print(f'Scrapped {scrapper.parsed} from {scrapper.name}')
-
 models.init()
 meme_provider.init()
+#scrapping_service.start_scrapping()
 bot.infinity_polling()

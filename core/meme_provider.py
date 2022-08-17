@@ -53,10 +53,18 @@ def get_meme_image(user_id):
 
 
 # Godniye memes moves to dataset train folder
+# TODO
+# Handle every start, by time. Move and delete
 def handle_outdated_memes(paths):
+    # check for duplications among filenames
+    # append csv file in train folder where stored likes, dislikes, filename
     for path in paths:
         filename = os.path.basename(path)
-        os.rename(path, os.path.join(config.TRAIN_PATH, filename))
+        new_path = os.path.join(config.TRAIN_PATH, filename)
+        if not os.path.exists(new_path):
+            os.rename(path, new_path)
+            with open(os.path.join(config.TRAIN_PATH, "data.csv"), "a") as file:
+                file.write(f"{filename},{0},{0}")
 
 
 def rotate_images_by_date(keep=1000):

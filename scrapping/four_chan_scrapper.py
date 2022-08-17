@@ -16,7 +16,6 @@ class FourChanScrapper(BaseScrapper):
         self.name = '4chan'
 
     def parse(self, url):
-
         result = requests.get(url)
 
         if result.status_code != 200:
@@ -24,15 +23,17 @@ class FourChanScrapper(BaseScrapper):
 
         soup = BeautifulSoup(result.content, features="html.parser")
 
-        images = soup.select('div img')
+        elements = soup.select('a')
 
-        for image in images:
-            image_url = image['src']
-            img_data = requests.get(f"https:{image_url}").content
+        for element in elements:
+            print(element)
+            if '.jpg' in element['title'] or '.png' in element['title']:
+                image_url = f"https:{element['href']}"
+                img_data = requests.get(image_url).content
 
-            with open(f'{os.path.join(config.IMAGES_PATH, self.get_unique_name())}.jpg', 'wb') as handler:
-                handler.write(img_data)
-                self.parsed += 1
+                with open(f'{os.path.join(config.IMAGES_PATH, self.get_unique_name())}.jpg', 'wb') as handler:
+                    handler.write(img_data)
+                    self.parsed += 1
 
     def get_images(self):
         self.parse(URL_ADDRESS)

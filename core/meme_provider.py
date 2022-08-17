@@ -60,11 +60,13 @@ def handle_outdated_memes(paths):
     # append csv file in train folder where stored likes, dislikes, filename
     for path in paths:
         filename = os.path.basename(path)
-        new_path = os.path.join(config.TRAIN_PATH, filename)
-        if not os.path.exists(new_path):
-            os.rename(path, new_path)
+        new_train_path = os.path.join(config.TRAIN_PATH, filename)
+        if not os.path.exists(new_train_path):
+            os.rename(path, new_train_path)
             with open(os.path.join(config.TRAIN_PATH, "data.csv"), "a") as file:
                 file.write(f"{filename},{0},{0}")
+        else:
+            print('WARNING Cannot move file to train folder because a file with same name already exists there.')
 
 
 def rotate_images_by_date(keep=1000):

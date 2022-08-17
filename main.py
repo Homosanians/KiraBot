@@ -50,12 +50,13 @@ def callback_query(call):
         post_id = call.data.split(':')[2]
         db_user = models.User.get(models.User.user_id == tg_user_id)
         db_post = models.Post.get(models.Post.id == post_id)
-        if not models.Assessment.select().where(models.Assessment.post == db_post).exists():
+        if not models.Assessment.select().where(models.Assessment.user == db_user).where(models.Assessment.post == db_post).exists():
             models.Assessment.create(post=db_post, user=db_user, positive=True)
-        elif not models.Assessment.get(models.Assessment.post == db_post).positive:
-            db_assessment = models.Assessment.get(user=db_user)
+        elif not models.Assessment.select().where(models.Assessment.user == db_user).where(models.Assessment.post == db_post).get().positive:
+            db_assessment = models.Assessment.select().where(models.Assessment.user == db_user).where(models.Assessment.post == db_post).get()
             db_assessment.positive = True
             db_assessment.save()
+            bot.answer_callback_query(call.id, strings.REPLY_ASSESSMENT_CHANGED)
         else:
             bot.answer_callback_query(call.id, strings.REPLY_CANNOT_RATE_TWICE)
     elif "meme_dislike" in call.data:
@@ -63,15 +64,18 @@ def callback_query(call):
         post_id = call.data.split(':')[2]
         db_user = models.User.get(models.User.user_id == tg_user_id)
         db_post = models.Post.get(models.Post.id == post_id)
-        if not models.Assessment.select().where(models.Assessment.post == db_post).exists():
+        if not models.Assessment.select().where(models.Assessment.user == db_user).where(models.Assessment.post == db_post).exists():
             models.Assessment.create(post=db_post, user=db_user, positive=False)
-        elif models.Assessment.get(models.Assessment.post == db_post).positive:
-            db_assessment = models.Assessment.get(user=db_user)
+        elif models.Assessment.select().where(models.Assessment.user == db_user).where(models.Assessment.post == db_post).get().positive:
+            db_assessment = models.Assessment.select().where(models.Assessment.user == db_user).where(models.Assessment.post == db_post).get()
             db_assessment.positive = False
             db_assessment.save()
+            bot.answer_callback_query(call.id, strings.REPLY_ASSESSMENT_CHANGED)
         else:
             bot.answer_callback_query(call.id, strings.REPLY_CANNOT_RATE_TWICE)
     bot.answer_callback_query(call.id)
+
+# get likes and dislikes.
 
 
 models.init()

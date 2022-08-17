@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from peewee import *
 
 db = SqliteDatabase('bot.db')
@@ -14,6 +16,7 @@ class User(BaseModel):
 
 class Post(BaseModel):
     file_name = CharField()
+    created_at = DateTimeField(default=datetime.now(timezone.utc))
 
 
 class View(BaseModel):

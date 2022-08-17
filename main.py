@@ -45,7 +45,7 @@ def handle_text(message):
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
     if "meme_like" in call.data:
-        # call:user_id:post_id
+        # Structure is call:user_id:post_id
         tg_user_id = call.data.split(':')[1]
         post_id = call.data.split(':')[2]
         db_user = models.User.get(models.User.user_id == tg_user_id)
@@ -75,13 +75,9 @@ def callback_query(call):
             bot.answer_callback_query(call.id, strings.REPLY_CANNOT_RATE_TWICE)
     bot.answer_callback_query(call.id)
 
-# TODO change POST filename to only base name of the file so it doesnt contain path
-
-#post = models.Post.select().where(models.Post.id == 4).get()
-#print(post.assessments.where(models.Assessment.positive == 1).count())
-#print(post.assessments.where(models.Assessment.positive == 0).count())
 
 models.init()
 meme_provider.init()
+# TODO scrap every *CONFIG* time
 #scrapping_service.start_scrapping()
 bot.infinity_polling()

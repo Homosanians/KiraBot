@@ -1,19 +1,20 @@
 import os
 import random
+from datetime import timedelta, datetime, timezone
 from pathlib import Path
 import glob
 
 from core import config
 from core.meme_provider_response import MemeProviderResponse
-from core.models import Post, View, User
+from core.models import Post, View, User, Assessment
 
 
 def refresh_database_memes():
     memes_paths = glob.glob(f"{config.IMAGES_PATH}/*.png") + glob.glob(f"{config.IMAGES_PATH}/*.jpg")
     for item in memes_paths:
-        if not Post.select().where(Post.file_name == item).exists():
-            filename = os.path.basename(item)
-            Post.create(file_name=filename, likes=0, dislikes=0)
+        filename = os.path.basename(item)
+        if not Post.select().where(Post.file_name == filename).exists():
+            Post.create(file_name=filename)
 
 
 def get_meme_image(user_id):
@@ -55,31 +56,46 @@ def get_meme_image(user_id):
         return MemeProviderResponse(error, image, db_post)
 
 
+def handle_duplications():
+    # TODO
+    pass
+
+
 # Godniye memes moves to dataset train folder
-# TODO
-# Handle every start, by time. Move and delete
 def handle_outdated_memes(paths):
-    # check for duplications among filenames
-    # append csv file in train folder where stored likes, dislikes, filename
     for path in paths:
         filename = os.path.basename(path)
         new_train_path = os.path.join(config.TRAIN_PATH, filename)
         if not os.path.exists(new_train_path):
             os.rename(path, new_train_path)
+
+            db_post = Post.select().where(Post.id == 4).get()
+            likes = db_post.assessments.where(Assessment.positive == 1).count()
+            dislikes = db_post.assessments.where(Assessment.positive == 0).count()
+            views = db_post.views.count()
+
             with open(os.path.join(config.TRAIN_PATH, "data.csv"), "a") as file:
-                file.write(f"{filename},{0},{0}")
+                file.write(f"{filename},{likes},{dislikes},{views}\n")
         else:
-            print('WARNING Cannot move file to train folder because a file with same name already exists there.')
+            print(f'WARNING Cannot move file {filename} to train folder because a file with same name already exists there.')
 
 
-def rotate_images_by_date(keep=1000):
-    paths = sorted(Path(config.IMAGES_PATH).iterdir(), key=os.path.getmtime)
-    paths.reverse()
-    handle_outdated_memes(paths[keep:])
+def rotate_memes(keep=1000, post_lifespan=timedelta(days=3)):
+    # Moves last *keep* images to train folder, files csv entry and deletes from the DB.
+    overflow_paths = sorted(Path(config.IMAGES_PATH).iterdir(), key=os.path.getmtime)
+    overflow_paths.reverse()
+    handle_outdated_memes(overflow_paths[keep:])
 
+    # Does the same with memes that present more than *post_lifespan* time.
+    db_post = Post.select().where(Post.created_at < datetime.now(timezone.utc) - post_lifespan)
+    overtime_paths = list(map(lambda x: os.path.join(config.IMAGES_PATH, x.file_name), db_post))
+    handle_outdated_memes(overtime_paths)
 
 def init():
     if not os.path.exists(config.IMAGES_PATH):
         os.makedirs(config.IMAGES_PATH)
+    if not os.path.exists(config.TRAIN_PATH):
+        os.makedirs(config.TRAIN_PATH)
     refresh_database_memes()
-    rotate_images_by_date()
+    # TODO Call rotate every *CONFIG* time
+    rotate_memes()

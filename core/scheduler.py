@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from asyncio import sleep
 from datetime import timedelta
 
@@ -25,7 +26,7 @@ async def __scraping_coroutine():
 
 
 async def run_coroutines():
-    print('Scheduler online')
+    logging.debug('Scheduler started issuing tasks.')
     await asyncio.gather(
         __rotation_coroutine(),
         __scraping_coroutine()

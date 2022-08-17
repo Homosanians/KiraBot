@@ -1,4 +1,3 @@
-# создание второго потока который парсит всё
 from threading import Thread
 
 from tqdm import tqdm
@@ -10,9 +9,8 @@ def _threaded_scrapping():
     scrappers = [FourChanScrapper()]
 
     for scrapper in tqdm(scrappers):
-        for image in scrapper.get_images():
-            pass
-        print(f'Scrapped {scrapper.parsed} from {scrapper.name}')
+        scrapper.get_images()
+        print(f'Scrapped {scrapper.parsed} photos from {scrapper.name}')
 
 
 def start_scrapping():

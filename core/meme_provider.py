@@ -34,7 +34,6 @@ def get_meme_image(user_id):
         viewed_post_paths.append(post.file_name)
 
     not_viewed_post_file_names = list(set(all_post_paths) - set(viewed_post_paths))
-    print(len(not_viewed_post_file_names))
 
     # Checking no unviewed memes left
     if len(not_viewed_post_file_names) == 0:
@@ -90,6 +89,7 @@ def rotate_memes(keep=1000, post_lifespan=timedelta(days=3)):
     db_post = Post.select().where(Post.created_at < datetime.now(timezone.utc) - post_lifespan)
     overtime_paths = list(map(lambda x: os.path.join(config.IMAGES_PATH, x.file_name), db_post))
     handle_outdated_memes(overtime_paths)
+
 
 def init():
     if not os.path.exists(config.IMAGES_PATH):

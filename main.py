@@ -50,10 +50,13 @@ def callback_query(call):
         post_id = call.data.split(':')[2]
         db_user = models.User.get(models.User.user_id == tg_user_id)
         db_post = models.Post.get(models.Post.id == post_id)
-        if not models.Assessment.select().where(models.Assessment.user == db_user).where(models.Assessment.post == db_post).exists():
+        if not models.Assessment.select().where(models.Assessment.user == db_user).where(
+                models.Assessment.post == db_post).exists():
             models.Assessment.create(post=db_post, user=db_user, positive=True)
-        elif not models.Assessment.select().where(models.Assessment.user == db_user).where(models.Assessment.post == db_post).get().positive:
-            db_assessment = models.Assessment.select().where(models.Assessment.user == db_user).where(models.Assessment.post == db_post).get()
+        elif not models.Assessment.select().where(models.Assessment.user == db_user).where(
+                models.Assessment.post == db_post).get().positive:
+            db_assessment = models.Assessment.select().where(models.Assessment.user == db_user).where(
+                models.Assessment.post == db_post).get()
             db_assessment.positive = True
             db_assessment.save()
             bot.answer_callback_query(call.id, strings.REPLY_ASSESSMENT_CHANGED)
@@ -64,10 +67,13 @@ def callback_query(call):
         post_id = call.data.split(':')[2]
         db_user = models.User.get(models.User.user_id == tg_user_id)
         db_post = models.Post.get(models.Post.id == post_id)
-        if not models.Assessment.select().where(models.Assessment.user == db_user).where(models.Assessment.post == db_post).exists():
+        if not models.Assessment.select().where(models.Assessment.user == db_user).where(
+                models.Assessment.post == db_post).exists():
             models.Assessment.create(post=db_post, user=db_user, positive=False)
-        elif models.Assessment.select().where(models.Assessment.user == db_user).where(models.Assessment.post == db_post).get().positive:
-            db_assessment = models.Assessment.select().where(models.Assessment.user == db_user).where(models.Assessment.post == db_post).get()
+        elif models.Assessment.select().where(models.Assessment.user == db_user).where(
+                models.Assessment.post == db_post).get().positive:
+            db_assessment = models.Assessment.select().where(models.Assessment.user == db_user).where(
+                models.Assessment.post == db_post).get()
             db_assessment.positive = False
             db_assessment.save()
             bot.answer_callback_query(call.id, strings.REPLY_ASSESSMENT_CHANGED)
@@ -76,8 +82,9 @@ def callback_query(call):
     bot.answer_callback_query(call.id)
 
 
+print('Warming up')
 models.init()
 meme_provider.init()
 # TODO scrap every *CONFIG* time
-#scrapping_service.start_scrapping()
+# scrapping_service.start_scrapping()
 bot.infinity_polling()

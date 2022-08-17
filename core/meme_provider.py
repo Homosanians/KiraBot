@@ -12,7 +12,8 @@ def refresh_database_memes():
     memes_paths = glob.glob(f"{config.IMAGES_PATH}/*.png") + glob.glob(f"{config.IMAGES_PATH}/*.jpg")
     for item in memes_paths:
         if not Post.select().where(Post.file_name == item).exists():
-            Post.create(file_name=item, likes=0, dislikes=0)
+            filename = os.path.basename(item)
+            Post.create(file_name=filename, likes=0, dislikes=0)
 
 
 def get_meme_image(user_id):
@@ -32,14 +33,16 @@ def get_meme_image(user_id):
         viewed_post_paths.append(post.file_name)
 
     not_viewed_post_file_names = list(set(all_post_paths) - set(viewed_post_paths))
+    print(len(not_viewed_post_file_names))
 
     # Checking no unviewed memes left
     if len(not_viewed_post_file_names) == 0:
         return MemeProviderResponse(True, None, None)
 
-    random_not_viewed_meme_path = random.choice(not_viewed_post_file_names)
+    random_not_viewed_meme_filename = random.choice(not_viewed_post_file_names)
+    random_not_viewed_meme_path = os.path.join(config.IMAGES_PATH, random_not_viewed_meme_filename)
 
-    db_post = Post.select().where(Post.file_name == random_not_viewed_meme_path).get()
+    db_post = Post.select().where(Post.file_name == random_not_viewed_meme_filename).get()
 
     if not os.path.exists(random_not_viewed_meme_path):
         db_post.delete_instance()

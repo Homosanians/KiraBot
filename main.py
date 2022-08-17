@@ -75,8 +75,11 @@ def callback_query(call):
             bot.answer_callback_query(call.id, strings.REPLY_CANNOT_RATE_TWICE)
     bot.answer_callback_query(call.id)
 
-# get likes and dislikes.
+# TODO change POST filename to only base name of the file so it doesnt contain path
 
+#post = models.Post.select().where(models.Post.id == 4).get()
+#print(post.assessments.where(models.Assessment.positive == 1).count())
+#print(post.assessments.where(models.Assessment.positive == 0).count())
 
 models.init()
 meme_provider.init()

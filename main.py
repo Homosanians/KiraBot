@@ -101,7 +101,7 @@ def get_severity_level():
         raise ValueError('Undefined unit: {}'.format(e.args[0]))
 
 
-if __name__ == '__main__':
+def main():
     logging.basicConfig(filename='latest.log', encoding='utf-8', level=get_severity_level(),
                         format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
@@ -117,3 +117,7 @@ if __name__ == '__main__':
     logging.info('Bot started.')
 
     asyncio.run(scheduler.run_coroutines())
+
+
+if __name__ == '__main__':
+    main()

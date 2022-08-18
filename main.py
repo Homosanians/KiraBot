@@ -57,6 +57,7 @@ def callback_query(call):
         if not models.Assessment.select().where(models.Assessment.user == db_user).where(
                 models.Assessment.post == db_post).exists():
             models.Assessment.create(post=db_post, user=db_user, positive=True)
+            bot.answer_callback_query(call.id, '👍')
         elif not models.Assessment.select().where(models.Assessment.user == db_user).where(
                 models.Assessment.post == db_post).get().positive:
             db_assessment = models.Assessment.select().where(models.Assessment.user == db_user).where(
@@ -74,6 +75,7 @@ def callback_query(call):
         if not models.Assessment.select().where(models.Assessment.user == db_user).where(
                 models.Assessment.post == db_post).exists():
             models.Assessment.create(post=db_post, user=db_user, positive=False)
+            bot.answer_callback_query(call.id, '👎')
         elif models.Assessment.select().where(models.Assessment.user == db_user).where(
                 models.Assessment.post == db_post).get().positive:
             db_assessment = models.Assessment.select().where(models.Assessment.user == db_user).where(
@@ -83,7 +85,6 @@ def callback_query(call):
             bot.answer_callback_query(call.id, strings.REPLY_ASSESSMENT_CHANGED)
         else:
             bot.answer_callback_query(call.id, strings.REPLY_CANNOT_RATE_TWICE)
-    bot.answer_callback_query(call.id)
 
 
 def get_severity_level():

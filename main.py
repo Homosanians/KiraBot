@@ -114,6 +114,7 @@ def main():
 
     logging.debug('Allocating a thread for telegram\'s API infinite polling.')
     thread = Thread(target=bot.infinity_polling)
+    thread.daemon = True
     thread.start()
     logging.info('Bot started.')
 

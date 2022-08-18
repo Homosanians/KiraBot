@@ -86,12 +86,14 @@ def rotate_memes(keep=1000, post_lifespan=timedelta(days=5)):
     # Moves last *keep* images to train folder, files csv entry and deletes from the DB.
     overflow_paths = sorted(Path(config.IMAGES_PATH).iterdir(), key=os.path.getmtime)
     overflow_paths.reverse()
-    handle_outdated_memes(overflow_paths[keep:])
+    if len(overflow_paths) > 0:
+        handle_outdated_memes(overflow_paths[keep:])
 
     # Does the same with memes that present more than *post_lifespan* time.
     db_post = Post.select().where(Post.created_at < datetime.now(timezone.utc) - post_lifespan)
     overtime_paths = list(map(lambda x: os.path.join(config.IMAGES_PATH, x.file_name), db_post))
-    handle_outdated_memes(overtime_paths)
+    if len(overtime_paths) > 0:
+        handle_outdated_memes(overtime_paths)
 
 
 def initialize():

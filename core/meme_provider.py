@@ -102,4 +102,6 @@ def initialize():
         os.makedirs(config.IMAGES_PATH)
     if not os.path.exists(config.TRAIN_PATH):
         os.makedirs(config.TRAIN_PATH)
+    if not os.path.exists(config.PENDING_PATH):
+        os.makedirs(config.PENDING_PATH)
     refresh_database_memes()

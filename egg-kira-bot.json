@@ -1,0 +1,142 @@
+{
+    "_comment": "DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY PTERODACTYL PANEL - PTERODACTYL.IO",
+    "meta": {
+        "version": "PTDL_v2",
+        "update_url": null
+    },
+    "exported_at": "2022-08-20T01:50:01+03:00",
+    "name": "Kira Bot",
+    "author": "contact.emelyanov@gmail.com",
+    "description": "\ud83d\udcf7 Personal cursed photos dispatcher. All in one solution.\r\n\r\nhttps:\/\/github.com\/Homosanians\/KiraBot",
+    "features": null,
+    "docker_images": {
+        "ghcr.io\/parkervcp\/yolks:python_3.10": "ghcr.io\/parkervcp\/yolks:python_3.10"
+    },
+    "file_denylist": [],
+    "startup": "echo 'Checking for updates.';\r\ngit fetch --all;\r\ngit reset --hard origin\/master;\r\npip install -r \/home\/container\/requirements.txt;\r\n\/usr\/local\/bin\/python \/home\/container\/main.py",
+    "config": {
+        "files": "{}",
+        "startup": "{\r\n    \"done\": [\r\n        \"Bot started.\"\r\n    ]\r\n}",
+        "logs": "{}",
+        "stop": "^C"
+    },
+    "scripts": {
+        "installation": {
+            "script": "apk update\r\napk add git\r\n\r\nmkdir -p \/mnt\/server\r\ncd \/mnt\/server\r\n\r\ngit clone https:\/\/github.com\/Homosanians\/KiraBot .\r\n\r\nexport HOME=\/mnt\/server",
+            "container": "alpine:latest",
+            "entrypoint": "ash"
+        }
+    },
+    "variables": [
+        {
+            "name": "BOT_TOKEN",
+            "description": "",
+            "env_variable": "BOT_TOKEN",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string",
+            "field_type": "text"
+        },
+        {
+            "name": "LOGGING_LEVEL",
+            "description": "0 - DEBUG, 1 - INFO, 2 - WARN, 3 - ERR, 4 - CRITICAL (FATAL)",
+            "env_variable": "LOGGING_LEVEL",
+            "default_value": "1",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|numeric|between:0,4",
+            "field_type": "text"
+        },
+        {
+            "name": "ENABLE_SCRAPPING",
+            "description": "",
+            "env_variable": "ENABLE_SCRAPPING",
+            "default_value": "1",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|boolean",
+            "field_type": "text"
+        },
+        {
+            "name": "SCRAP_PERIOD_MINUTES",
+            "description": "",
+            "env_variable": "SCRAP_PERIOD_MINUTES",
+            "default_value": "90",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|numeric",
+            "field_type": "text"
+        },
+        {
+            "name": "MEME_SCAN_PERIOD_SECONDS",
+            "description": "",
+            "env_variable": "MEME_SCAN_PERIOD_SECONDS",
+            "default_value": "30",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|numeric",
+            "field_type": "text"
+        },
+        {
+            "name": "ROTATION_POST_LIFESPAN_HOURS",
+            "description": "",
+            "env_variable": "ROTATION_POST_LIFESPAN_HOURS",
+            "default_value": "72",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|numeric",
+            "field_type": "text"
+        },
+        {
+            "name": "ROTATION_KEEP_FILES_COUNT",
+            "description": "",
+            "env_variable": "ROTATION_KEEP_FILES_COUNT",
+            "default_value": "10000",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|numeric",
+            "field_type": "text"
+        },
+        {
+            "name": "DUPLICATE_DETECT_THRESHOLD",
+            "description": "",
+            "env_variable": "DUPLICATE_DETECT_THRESHOLD",
+            "default_value": "0.1",
+            "user_viewable": true,
+            "user_editable": false,
+            "rules": "required|numeric",
+            "field_type": "text"
+        },
+        {
+            "name": "IMAGES_PATH",
+            "description": "",
+            "env_variable": "IMAGES_PATH",
+            "default_value": ".\/memes",
+            "user_viewable": true,
+            "user_editable": false,
+            "rules": "nullable|string",
+            "field_type": "text"
+        },
+        {
+            "name": "PENDING_PATH",
+            "description": "",
+            "env_variable": "PENDING_PATH",
+            "default_value": ".\/memes_pending",
+            "user_viewable": true,
+            "user_editable": false,
+            "rules": "nullable|string",
+            "field_type": "text"
+        },
+        {
+            "name": "TRAIN_PATH",
+            "description": "",
+            "env_variable": "TRAIN_PATH",
+            "default_value": ".\/dataset",
+            "user_viewable": true,
+            "user_editable": false,
+            "rules": "nullable|string",
+            "field_type": "text"
+        }
+    ]
+}

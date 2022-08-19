@@ -16,6 +16,7 @@ class User(BaseModel):
 
 class Post(BaseModel):
     file_name = CharField()
+    hash = BlobField()
     created_at = DateTimeField(default=datetime.now(timezone.utc))
 
 

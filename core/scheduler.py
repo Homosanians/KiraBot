@@ -4,17 +4,16 @@ from asyncio import sleep
 from datetime import timedelta
 
 from core import config
-from core.meme_provider import refresh_database_memes, rotate_memes, handle_duplications
+from core.meme_provider import rotate_memes, adopt_pending_memes
 from services import scrapping_service
 
 
 async def __rotation_coroutine():
     while True:
         logging.debug('Rotation coroutine initiated.')
-        refresh_database_memes()
+        adopt_pending_memes()
         rotate_memes(keep=config.ROTATION_KEEP_FILES_COUNT,
                      post_lifespan=timedelta(hours=config.ROTATION_POST_LIFESPAN_HOURS))
-        handle_duplications()
         await sleep(config.MEME_SCAN_PERIOD_SECONDS)
 
 

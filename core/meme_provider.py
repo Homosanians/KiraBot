@@ -5,17 +5,45 @@ from datetime import timedelta, datetime, timezone
 from pathlib import Path
 import glob
 
-from core import config
+import tqdm as tqdm
+
+from core import config, near_duplicate_detector
 from core.meme_provider_response import MemeProviderResponse
 from core.models import Post, View, User, Assessment
+from core.near_duplicate_detector import NearDuplicateDetector
+
+dup_detector = None
 
 
-def refresh_database_memes():
-    memes_paths = glob.glob(f"{config.IMAGES_PATH}/*.png") + glob.glob(f"{config.IMAGES_PATH}/*.jpg")
-    for item in memes_paths:
-        filename = os.path.basename(item)
-        if not Post.select().where(Post.file_name == filename).exists():
-            Post.create(file_name=filename)
+# TODO Make this a class
+
+
+def adopt_pending_memes():
+    memes_paths = glob.glob(f"{config.PENDING_PATH}/*.png") + glob.glob(f"{config.PENDING_PATH}/*.jpg")
+
+    if len(memes_paths) == 0:
+        return
+
+    logging.info(f'{len(memes_paths)} images pending adoption.')
+
+    for path in tqdm.tqdm(memes_paths):
+        filename = os.path.basename(path)
+        signature = dup_detector.calculate_hash(path)
+        if not dup_detector.is_duplicate(signature):
+            if not Post.select().where(Post.file_name == filename).exists():
+                logging.debug(f'Creating a new DB Post model entry of {filename}, moving to storage.')
+                new_path = os.path.join(config.IMAGES_PATH, filename)
+                dup_detector.add(filename, signature)
+                os.rename(path, new_path)
+                Post.create(file_name=filename, hash=signature.tobytes())
+            else:
+                logging.warning(f'Near duplicate is not detected however entry with same filename ({filename}) is '
+                                f'already occupied. Scrappers save files by uuid4 unique name with availability checks '
+                                f'so this is caused by moving files by hand. Deleting file from pending list.')
+                os.remove(path)
+        else:
+            logging.debug(f'Removing a pending image {filename} which is confirmed to be duplicate.')
+            os.remove(path)
 
 
 def get_meme_image(user_id):
@@ -46,6 +74,7 @@ def get_meme_image(user_id):
     db_post = Post.select().where(Post.file_name == random_not_viewed_meme_filename).get()
 
     if not os.path.exists(random_not_viewed_meme_path):
+        logging.warning('Unrecommended action occurred. Some images were moved out from storage by hand.')
         db_post.delete_instance()
         return get_meme_image(user_id)
 
@@ -56,30 +85,36 @@ def get_meme_image(user_id):
         return MemeProviderResponse(error, image, db_post)
 
 
-def handle_duplications():
-    # TODO
-    pass
-
-
 # Godniye memes moves to dataset train folder
 def handle_outdated_memes(paths):
-    logging.debug('Outdated memes found. The purge process has started.')
+    logging.info('Outdated memes found. The purge process has started.')
     for path in paths:
         filename = os.path.basename(path)
         new_train_path = os.path.join(config.TRAIN_PATH, filename)
         if not os.path.exists(new_train_path):
-            os.rename(path, new_train_path)
-
-            db_post = Post.select().where(Post.id == 4).get()
+            db_post = Post.get(Post.file_name == filename)
             likes = db_post.assessments.where(Assessment.positive == 1).count()
             dislikes = db_post.assessments.where(Assessment.positive == 0).count()
             views = db_post.views.count()
 
-            with open(os.path.join(config.TRAIN_PATH, "data.csv"), "a") as file:
+            dup_detector.remove(filename)
+            db_post.delete_instance()
+            os.rename(path, new_train_path)
+
+            report_file_path = os.path.join(config.TRAIN_PATH, "data.csv")
+
+            if not os.path.exists(report_file_path):
+                with open(os.path.join(config.TRAIN_PATH, "data.csv"), "w", encoding="utf-8") as file:
+                    file.write(f"filename,likes,dislikes,views\n")
+
+            with open(os.path.join(config.TRAIN_PATH, "data.csv"), "a", encoding="utf-8") as file:
                 file.write(f"{filename},{likes},{dislikes},{views}\n")
         else:
-            logging.warning(f'Cannot move file {filename} to train folder because a file with same name already exists '
-                  f'there.')
+            logging.warning(f'User intervention detected. Cannot move file {filename} to train folder because a file '
+                            f'with same name already exists there. Deleting files from {config.IMAGES_PATH}')
+            dup_detector.remove(filename)
+            Post.get(Post.file_name == filename).delete_instance()
+            os.remove(path)
 
 
 def rotate_memes(keep=1000, post_lifespan=timedelta(days=5)):
@@ -93,6 +128,12 @@ def rotate_memes(keep=1000, post_lifespan=timedelta(days=5)):
     # Does the same with memes that present more than *post_lifespan* time.
     db_post = Post.select().where(Post.created_at < datetime.now(timezone.utc) - post_lifespan)
     overtime_paths = list(map(lambda x: os.path.join(config.IMAGES_PATH, x.file_name), db_post))
+    # Confirm path exists to prevent FileNotFoundError when db entry exist but image by that path does not
+    for path in overtime_paths:
+        if not os.path.exists(path):
+            logging.warning(f'Path to rotate images by exceeding time provided by the DB, '
+                            f'but no file by that path was found in {config.IMAGES_PATH}')
+            overtime_paths.remove(path)
     if len(overtime_paths) > 0:
         handle_outdated_memes(overtime_paths)
 
@@ -104,4 +145,14 @@ def initialize():
         os.makedirs(config.TRAIN_PATH)
     if not os.path.exists(config.PENDING_PATH):
         os.makedirs(config.PENDING_PATH)
-    refresh_database_memes()
+
+    global dup_detector
+    dup_detector = NearDuplicateDetector()
+
+    logging.info('Importing hashes to duplicate detector from the DB.')
+    for post in tqdm.tqdm(Post.select()):
+        filename = post.file_name
+        hash_bytes = post.hash
+        dup_detector.add(filename, near_duplicate_detector.bytes_to_signature(hash_bytes))
+
+    adopt_pending_memes()

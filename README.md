@@ -1,4 +1,14 @@
-### Руководство по использованию
+### What is it?
 
-Раньше тут были указаны вещи с которыми пользователю стоит быть осторожным. Однако они все уже исправлены, так что ожидайте новое README. До скорых встреч!
+KiraBot is an open source meme bot for Telegram.
 
+### Functions
+
+- Download memes from different sites
+- Checking memes for duplicates
+- Sending memes to users
+- Selection of the best memes by a neural network model
+
+### Getting started
+
+You can host the bot either using python command or pterodactyl.

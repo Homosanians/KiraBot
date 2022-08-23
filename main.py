@@ -27,8 +27,8 @@ def inline_keyboard(payload):
 
 @bot.message_handler(commands=["start"])
 def start(message):
-    db_user = models.User(user_id=message.from_user.id)
-    db_user.save()
+    if not models.User.select().where(models.User.user_id == message.from_user.id).exists():
+        models.User.create(user_id=message.from_user.id)
     bot.send_message(message.chat.id, strings.START, reply_markup=keyboard())
 
 

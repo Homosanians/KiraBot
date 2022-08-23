@@ -41,7 +41,7 @@ def handle_text(message):
         else:
             bot.send_chat_action(message.chat.id, 'upload_photo')
             bot.send_photo(message.chat.id, response.image,
-                           reply_markup=inline_keyboard(f"{message.from_user.id}:{response.post_id}"))
+                           reply_markup=inline_keyboard(f"{message.from_user.id}:{response.post_id}:{message.chat.id}"))
     else:
         bot.send_message(message.chat.id, strings.REPLY_COMMAND_DOES_NOT_EXIST, reply_markup=keyboard())
 
@@ -49,7 +49,7 @@ def handle_text(message):
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
     if "meme_like" in call.data:
-        # Structure is call:user_id:post_id
+        # Structure is call:user_id:post_id:chat_id
         tg_user_id = call.data.split(':')[1]
         post_id = call.data.split(':')[2]
         db_user = models.User.get(models.User.user_id == tg_user_id)
@@ -85,6 +85,15 @@ def callback_query(call):
             bot.answer_callback_query(call.id, strings.REPLY_ASSESSMENT_CHANGED)
         else:
             bot.answer_callback_query(call.id, strings.REPLY_CANNOT_RATE_TWICE)
+
+    # TODO: this is a code copy
+    tg_user_id = call.data.split(':')[1]
+    tg_chat_id = call.data.split(':')[3]
+    response = meme_provider.get_meme_image(tg_user_id)
+    if not response.error:
+        bot.send_chat_action(tg_chat_id, 'upload_photo')
+        bot.send_photo(tg_chat_id, response.image,
+                       reply_markup=inline_keyboard(f"{tg_user_id}:{response.post_id}:{tg_chat_id}"))
 
 
 def get_severity_level():

@@ -11,6 +11,7 @@ from core import config, near_duplicate_detector
 from core.meme_provider_response import MemeProviderResponse
 from core.models import Post, View, User, Assessment
 from core.near_duplicate_detector import NearDuplicateDetector
+from scrapping import base_scrapper
 
 dup_detector = None
 
@@ -39,8 +40,8 @@ def adopt_pending_memes():
             else:
                 logging.warning(f'Near duplicate is not detected however entry with same filename ({filename}) is '
                                 f'already occupied. Scrappers save files by uuid4 unique name with availability checks '
-                                f'so this is caused by moving files by hand. Deleting file from pending list.')
-                os.remove(path)
+                                f'so this is caused by moving files by hand. Generating a new name for the files.')
+                os.rename(path, os.path.join(config.PENDING_PATH, base_scrapper.get_unique_name()))
         else:
             logging.debug(f'Removing a pending image {filename} which is confirmed to be duplicate.')
             os.remove(path)

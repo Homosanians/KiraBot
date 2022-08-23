@@ -30,7 +30,7 @@ class FourChanScrapper(BaseScrapper):
                 image_url = f"https:{element['href']}"
                 img_data = requests.get(image_url).content
 
-                with open(f'{os.path.join(config.IMAGES_PATH, self.get_unique_name())}.jpg', 'wb') as handler:
+                with open(f'{os.path.join(config.IMAGES_PATH, get_unique_name())}.jpg', 'wb') as handler:
                     handler.write(img_data)
                     self.parsed += 1
 

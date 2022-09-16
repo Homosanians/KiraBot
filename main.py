@@ -55,10 +55,12 @@ def callback_query(call):
         post_id = call.data.split(':')[2]
         db_user = models.User.get(models.User.user_id == tg_user_id)
         db_post = models.Post.get(models.Post.id == post_id)
+        # Create new assessment
         if not models.Assessment.select().where(models.Assessment.user == db_user).where(
                 models.Assessment.post == db_post).exists():
             models.Assessment.create(post=db_post, user=db_user, positive=True)
             bot.answer_callback_query(call.id, '👍')
+        # Change user's assessment
         elif not models.Assessment.select().where(models.Assessment.user == db_user).where(
                 models.Assessment.post == db_post).get().positive:
             db_assessment = models.Assessment.select().where(models.Assessment.user == db_user).where(

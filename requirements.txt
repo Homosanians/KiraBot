@@ -12,6 +12,8 @@ numpy==1.23.2
 packaging==21.3
 peewee==3.15.1
 Pillow==9.2.0
+praw==7.6.0
+prawcore==2.3.0
 pyparsing==3.0.9
 pyTelegramBotAPI==4.7.0
 python-dotenv==0.20.0
@@ -23,4 +25,6 @@ six==1.16.0
 soupsieve==2.3.2.post1
 tifffile==2022.8.12
 tqdm==4.64.0
+update-checker==0.18.0
 urllib3==1.26.11
+websocket-client==1.4.1

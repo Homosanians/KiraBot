@@ -23,6 +23,6 @@ class RedditScrapper(BaseScrapper):
             hot_posts = self.reddit.subreddit(subreddit).top(time_filter="week", limit=50)
             for post in hot_posts:
                 img_data = requests.get(post.url).content
-                with open(f'{os.path.join(config.IMAGES_PATH, get_unique_name())}.jpg', 'wb') as handler:
+                with open(f'{os.path.join(config.PENDING_PATH, get_unique_name())}.jpg', 'wb') as handler:
                     handler.write(img_data)
                     self.parsed += 1

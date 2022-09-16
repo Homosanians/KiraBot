@@ -28,23 +28,26 @@ def adopt_pending_memes():
     logging.info(f'{len(memes_paths)} images pending adoption.')
 
     for path in tqdm.tqdm(memes_paths):
-        filename = os.path.basename(path)
-        signature = dup_detector.calculate_hash(path)
-        if not dup_detector.is_duplicate(signature):
-            if not Post.select().where(Post.file_name == filename).exists():
-                logging.debug(f'Creating a new DB Post model entry of {filename}, moving to storage.')
-                new_path = os.path.join(config.IMAGES_PATH, filename)
-                dup_detector.add(filename, signature)
-                os.rename(path, new_path)
-                Post.create(file_name=filename, hash=signature.tobytes())
+        try:
+            filename = os.path.basename(path)
+            signature = dup_detector.calculate_hash(path)
+            if not dup_detector.is_duplicate(signature):
+                if not Post.select().where(Post.file_name == filename).exists():
+                    logging.debug(f'Creating a new DB Post model entry of {filename}, moving to storage.')
+                    new_path = os.path.join(config.IMAGES_PATH, filename)
+                    dup_detector.add(filename, signature)
+                    os.rename(path, new_path)
+                    Post.create(file_name=filename, hash=signature.tobytes())
+                else:
+                    logging.warning(f'Near duplicate is not detected however entry with same filename ({filename}) is '
+                                    f'already occupied. Scrappers save files by uuid4 unique name with availability checks '
+                                    f'so this is caused by moving files by hand. Generating a new name for the files.')
+                    os.rename(path, os.path.join(config.PENDING_PATH, base_scrapper.get_unique_name()))
             else:
-                logging.warning(f'Near duplicate is not detected however entry with same filename ({filename}) is '
-                                f'already occupied. Scrappers save files by uuid4 unique name with availability checks '
-                                f'so this is caused by moving files by hand. Generating a new name for the files.')
-                os.rename(path, os.path.join(config.PENDING_PATH, base_scrapper.get_unique_name()))
-        else:
-            logging.debug(f'Removing a pending image {filename} which is confirmed to be duplicate.')
-            os.remove(path)
+                logging.debug(f'Removing a pending image {filename} which is confirmed to be duplicate.')
+                os.remove(path)
+        except:
+            logging.warning(f"Cannot adopt image, exception occurred. Path {path}.")
 
 
 def get_meme_image(user_id):

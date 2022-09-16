@@ -23,7 +23,7 @@ async def __scraping_coroutine():
     while True:
         logging.debug('Scraping coroutine initiated.')
         scrapping_service.start_scrapping()
-        await sleep(config.SCRAP_PERIOD_MINUTES)
+        await sleep(config.SCRAP_PERIOD_MINUTES * 60)
 
 
 async def run_coroutines():

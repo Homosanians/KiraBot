@@ -97,9 +97,12 @@ def callback_query(call):
         tg_chat_id = call.data.split(':')[3]
         response = meme_provider.get_meme_image(tg_user_id)
         if not response.error:
-            bot.send_chat_action(tg_chat_id, 'upload_photo')
-            bot.send_photo(tg_chat_id, response.image,
-                           reply_markup=inline_keyboard(f"{tg_user_id}:{response.post_id}:{tg_chat_id}"))
+            try:
+                bot.send_chat_action(tg_chat_id, 'upload_photo')
+                bot.send_photo(tg_chat_id, response.image,
+                               reply_markup=inline_keyboard(f"{tg_user_id}:{response.post_id}:{tg_chat_id}"))
+            except:
+                callback_query(call)
 
 
 def get_severity_level():

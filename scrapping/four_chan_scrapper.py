@@ -5,7 +5,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from core import config
-from scrapping.base_scrapper import BaseScrapper
+from scrapping.base_scrapper import BaseScrapper, get_unique_name
 
 URL_ADDRESS = 'https://boards.4chan.org/b/'
 

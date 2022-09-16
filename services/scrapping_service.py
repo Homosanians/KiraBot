@@ -2,8 +2,9 @@ import logging
 from threading import Thread
 
 from scrapping.four_chan_scrapper import FourChanScrapper
+from scrapping.reddit_scrapper import RedditScrapper
 
-scrappers = [FourChanScrapper()]
+scrappers = [RedditScrapper()]
 
 
 def __threaded_scrapping(scrapper):

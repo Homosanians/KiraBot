@@ -9,6 +9,7 @@ image-match @ git+https://github.com/EdjoLabs/image-match@4262f441c12bdd5ec07de4
 imageio==2.21.1
 networkx==2.8.5
 numpy==1.23.2
+opencv-python==4.6.0.66
 packaging==21.3
 peewee==3.15.1
 Pillow==9.2.0

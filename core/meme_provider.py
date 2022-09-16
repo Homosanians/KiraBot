@@ -47,7 +47,8 @@ def adopt_pending_memes():
                 logging.debug(f'Removing a pending image {filename} which is confirmed to be duplicate.')
                 os.remove(path)
         except:
-            logging.warning(f"Cannot adopt image, exception occurred. Path {path}.")
+            logging.warning(f"Cannot adopt image, exception occurred. Deleting {path}.")
+            os.remove(path)
 
 
 def get_meme_image(user_id):

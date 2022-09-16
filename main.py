@@ -102,6 +102,7 @@ def callback_query(call):
                 bot.send_photo(tg_chat_id, response.image,
                                reply_markup=inline_keyboard(f"{tg_user_id}:{response.post_id}:{tg_chat_id}"))
             except:
+                logging.warning(f"Cannot upload an image, size is too big. Calling recursion.")
                 callback_query(call)
 
 
